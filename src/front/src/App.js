@@ -3,6 +3,9 @@ import React, { Component } from 'react';
 import Header from "./component/Header";
 import WeatherDisplay from './component/Weather';
 import { Navbar, NavItem, Nav, Grid, Row, Col } from "react-bootstrap";
+import axios from 'axios';
+
+const URL = 'http://localhost:8000/api/code';
 
 // const PLACES = [
 //   { name: "Khmelnytskyi", zip: "29015" },
@@ -11,15 +14,7 @@ import { Navbar, NavItem, Nav, Grid, Row, Col } from "react-bootstrap";
 //   { name: "Santa Cruz", zip: "95062" },
 //   { name: "Honolulu", zip: "96803" }
 // ];
-
-
-// const PLACES = [] 
-// fetch('http://localhost:8000/api/code')
-//   .then(res => res.json())
-//   .then(data => {
-//     return PLACES = data
-//   })
-// console.log(PLACES)
+// console.log("PLACES Original", PLACES)
 
 class App extends Component {
   constructor() {
@@ -29,18 +24,43 @@ class App extends Component {
       PLACES: []
     }
   }
-  componentLoad() {
-    fetch('http://localhost:8000/api/code')
-      .then(res => res.json())
-      .then(data => {
-        this.setState({PLACES: data})
+  // getPlaces() {
+  //   fetch('http://localhost:8000/api/code')
+  //     .then((response) => response.json())
+  //     .then((responseJson) => {
+  //       console.log("Response", responseJson)
+  //       this.setState({ PLACES: responseJson })
+  //       console.log("PLACES: ", this.state.PLACES)
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //     });
+  // }
+  // componentDidMount() {
+  //  this.getPlaces()
+  // }
+  componentWillMount() {
+    axios
+      .get(URL)
+      .then(response => {
+        const newPlaces = response.data.map(c => {
+          return {
+            name: c.name,
+            zip: c.zip
+          };
+        });
+        const newState = Object.assign({}, this.state, {
+          PLACES: newPlaces
+        });
+        this.setState(newState)
       })
   }
   render() {
-    this.componentLoad();
     const activePlace = this.state.activePlace;
     const PLACES = this.state.PLACES;
-    console.log(PLACES)
+    if (PLACES.length === 0) {
+      return (<h1>Load....</h1>)
+    }
     return (
       <div>
         <Header />
